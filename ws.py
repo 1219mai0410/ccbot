@@ -13,6 +13,7 @@ async def ws_run_forever(
         await ws.send_json(model.params)
         async for msg in ws:
             if msg.type == aiohttp.WSMsgType.TEXT:
-                method(model.type_, model.orderbook(msg.json()))
+                if type(model).__name__ == 'bitFlyer':
+                    print(type(model).__name__, model.orderbook(msg.json()))
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 quit()

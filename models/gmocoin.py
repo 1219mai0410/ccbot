@@ -18,8 +18,8 @@ class GMO:
         bids = [[float(m['price']), float(m['size'])] for m in msg['bids']]
         return [asks, bids]
 
-    def __init__(self, type_: str, symbol: str, **kwargs: dict):
-        self.type_ = type_
+    def __init__(self, symbol: str, *args: tuple, **kwargs: dict):
+        self.type_ = args[0] if args else None
         self.symbol = symbol
         self.keys = kwargs if kwargs else None
 
@@ -61,6 +61,7 @@ class GMO:
             'API-SIGN': sign
         }
         requests.post(GMO.REQUEST_URL + path, headers=headers, data=json.dumps(body))
+        return id_
 
     def cancel(self, id_) -> None:
         ts = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
@@ -101,7 +102,7 @@ class GMO:
             'API-SIGN': sign
         }
         res = requests.post(GMO.REQUEST_URL + path, headers=headers, data=json.dumps(body))
-        return res.json()
+        return int(res.json()['data'])
 
     def get_position(self) -> float:
         ts = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))

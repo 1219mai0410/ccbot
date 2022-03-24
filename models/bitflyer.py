@@ -20,7 +20,7 @@ class bitFlyer:
         b = cls.bids.values()[0][0]
         if a < b:
             cls.asks.pop(a, None)
-            cls.bids.pop(b, None)
+            cls.bids.pop(-b, None)
         return [cls.asks.values()[:], cls.bids.values()[:]]
 
     @staticmethod
@@ -32,8 +32,8 @@ class bitFlyer:
             else:
                 ob[p * sign] = [p, s]
 
-    def __init__(self, type_: str, symbol: str, **kwargs: dict):
-        self.type_ = type_
+    def __init__(self, symbol: str, *args: tuple, **kwargs: dict):
+        self.type_ = args[0] if args else None
         self.symbol = symbol
         self.keys = kwargs
 
@@ -64,7 +64,7 @@ class bitFlyer:
     def change(self, id_: str, *args) -> None:
         self.cancel(id_)
         if args:
-            self.order(args[1], args[2], args[0])
+            return self.order(args[1], args[2], args[0])
 
     def cancel(self, id_: str) -> None:
         ts = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
@@ -85,7 +85,7 @@ class bitFlyer:
 
     def settlement(self, side: str, size: float, *args: tuple) -> None:
         if args:
-            return self.order(side, size, args[0])
+            return self.order(side, size, args[1])
         else:
             return self.order(side, size)
 
@@ -129,7 +129,7 @@ class bitFlyer:
             'Content-Type': 'application/json'
         }
         res = requests.get(bitFlyer.REQUEST_URL + path, headers=headers)
-        return [res_data['child_order_acceptance_id'] for resdata in res.json()]
+        return [res_data['child_order_acceptance_id'] for res_data in res.json()]
 
     def get_settlement_ids(self) -> str:
         return self.get_order_id()
